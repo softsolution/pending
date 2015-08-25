@@ -1,15 +1,18 @@
 <?php
-/* ****************************************************************************************** */
-/* created by soft-solution.ru                                                                */
-/* install.php of component pending_content for InstantCMS 1.10.2                             */
-/* ****************************************************************************************** */
+/* ************************************************************************** */
+/* created by soft-solution.ru, support@soft-solution.ru                      */
+/* component pending content for InstantCMS 1.10.6                            */
+/* license: commercialcc                                                      */
+/* Незаконное использование преследуется по закону                            */
+/* ************************************************************************** */
     function info_component_pending_content(){
+        
         $_component['title']        = 'Отложенный контент';
         $_component['description']  = 'Компонент Отложенный контент для InstantCMS';
         $_component['link']         = 'pending_content';
         $_component['author']       = '<a href="http://soft-solution.ru">soft-solution.ru</a>';
         $_component['internal']     = '1';
-        $_component['version']      = '1.0';
+        $_component['version']      = '1.10.6';
 		
         $inCore = cmsCore::getInstance();
         $inCore->loadModel('pending_content');
@@ -21,15 +24,13 @@
     }
 
     function install_component_pending_content(){
-
+        
         $inCore     = cmsCore::getInstance();
         $inDB       = cmsDatabase::getInstance();
-        $inConf     = cmsConfig::getInstance();
+        
+        $inDB->importFromFile($_SERVER['DOCUMENT_ROOT'].'/components/pending_content/install.sql');
         
         cmsCore::loadClass('cron');
-
-        include($_SERVER['DOCUMENT_ROOT'].'/includes/dbimport.inc.php');
-        dbRunSQL($_SERVER['DOCUMENT_ROOT'].'/components/pending_content/install.sql', $inConf->db_prefix);
         
         if(!$inDB->get_field('cms_cron_jobs', "job_name='cronPendingContent'", 'id')){
             cmsCron::registerJob('cronPendingContent', array(
@@ -51,10 +52,6 @@
 
     function upgrade_component_pending_content(){
         
-        //$inCore     = cmsCore::getInstance();
-        //$inDB       = cmsDatabase::getInstance();
-        //$inConf     = cmsConfig::getInstance();
-        
         return true;
         
     }
@@ -68,6 +65,9 @@
         cmsCron::removeJob('cronPendingContent');
         
         $inDB->query("DROP TABLE IF EXISTS cms_pending_content");
+        
+        //TODO добавить удаление неопубликованных статей через модель компонента - 
+        //для правильного удаления картинок
 		
     }
 ?>

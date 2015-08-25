@@ -1,8 +1,10 @@
 <?php
-/* ****************************************************************************************** */
-/* created by soft-solution.ru                                                                */
-/* backend.php of component pending_content for InstantCMS 1.10.2                             */
-/* ****************************************************************************************** */
+/* ************************************************************************** */
+/* created by soft-solution.ru, support@soft-solution.ru                      */
+/* component pending content for InstantCMS 1.10.6                            */
+/* license: commercialcc                                                      */
+/* Незаконное использование преследуется по закону                            */
+/* ************************************************************************** */
 
 if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
 
@@ -11,36 +13,30 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
     $inDB = cmsDatabase::getInstance();
     
     $cfg = $model->config;
-    
-    $opt = $inCore->request('opt', 'str', 'list_items');
-    $component_id  = $inCore->request('id', 'int', 0);
+ 
+    $opt = cmsCore::request('opt', 'str', 'list_items');
+    $component_id  = cmsCore::request('id', 'int', 0);
     
     cpAddPathway('Отложенный контент', '?view=components&do=config&id='.$component_id);
     $GLOBALS['cp_page_head'][] = '<script language="JavaScript" type="text/javascript" src="/admin/components/pending_content/js/common.js"></script>';
     
     echo '<h3>Отложенный контент</h3>';
+    
+    cmsCore::loadLanguage('admin/applets/applet_tree');
+    cmsCore::loadLanguage('admin/applets/applet_content');
 
     $toolmenu = array();
     
     if($opt!='add' && $opt!='edit'){
+        
+        $toolmenu[] = array('icon'=>'folders.gif', 'title'=>'Все отложенные статьи', 'link'=>'?view=components&do=config&id='.$component_id);
+        $toolmenu[] = array('icon'=>'config.gif', 'title'=>'Настройки', 'link'=>'?view=components&do=config&id='.$component_id.'&opt=config');
 
-        $toolmenu[0]['icon'] = 'folders.gif';
-        $toolmenu[0]['title'] = 'Все отложенные статьи';
-        $toolmenu[0]['link'] = '?view=components&do=config&id='.$component_id;
-
-        $toolmenu[1]['icon'] = 'config.gif';
-        $toolmenu[1]['title'] = 'Настройки';
-        $toolmenu[1]['link'] = '?view=components&do=config&id='.$component_id.'&opt=config';
-    
     } else {
-    
-        $toolmenu[0]['icon'] = 'save.gif';
-        $toolmenu[0]['title'] = 'Сохранить';
-        $toolmenu[0]['link'] = 'javascript:document.addform.submit();';
-
-        $toolmenu[1]['icon'] = 'cancel.gif';
-        $toolmenu[1]['title'] = 'Отмена';
-        $toolmenu[1]['link'] = 'javascript:history.go(-1);';
+        
+        $toolmenu[] = array('icon'=>'save.gif', 'title'=>'Сохранить', 'link'=>'javascript:document.addform.submit();');
+        $toolmenu[] = array('icon'=>'cancel.gif', 'title'=>'Отмена', 'link'=>'javascript:history.go(-1);');
+        
     }
     
     cpToolMenu($toolmenu);
@@ -48,16 +44,14 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
 //=================================================================================================//
 //=================================================================================================//
     if($opt=='saveconfig'){
-
-        $cfg = array();
         
-        $cfg['param1']          = $inCore->request('param1', 'str', '');
+        if (!cmsUser::checkCsrfToken()) { cmsCore::error404(); }
+
+        $cfg['param1']          = cmsCore::request('param1', 'str', '');
 
         $inCore->saveComponentConfig('pending_content', $cfg);
         
-        cmsCore::addSessionMessage('Настройки сохранены', 'info');
-        cmsUser::clearCsrfToken();
-
+        cmsCore::addSessionMessage($_LANG['AD_CONFIG_SAVE_SUCCESS'], 'success');
         cmsCore::redirectBack();
         
     }
@@ -67,49 +61,29 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
 
     if ($opt == 'config') {
         
-        cpAddPathway('Настройки', $_SERVER['REQUEST_URI']);
-        $GLOBALS['cp_page_head'][] = '<script type="text/javascript" src="/includes/jquery/tabs/jquery.ui.min.js"></script>';
-        $GLOBALS['cp_page_head'][] = '<link href="/includes/jquery/tabs/tabs.css" rel="stylesheet" type="text/css" />';
+        cpAddPathway($_LANG['AD_SETTINGS']);
+        echo '<h3>'.$_LANG['AD_SETTINGS'].'</h3>';
 
     ?>
 
 <form action="index.php?view=components&amp;do=config&amp;id=<?php echo $component_id; ?>" method="post" name="optform" target="_self" id="form1">
     <input type="hidden" name="csrf_token" value="<?php echo cmsUser::getCsrfToken(); ?>" />
-    <div id="config_tabs" style="margin-top:12px;">
-
+    <div id="config_tabs" style="margin-top:12px;" class="uitabs">
         <ul id="tabs">
             <li><a href="#basic"><span>Общие</span></a></li>
         </ul>
-
         <div id="basic">
             <p>Используются параметры публикации компонента Каталог статей <a href="index.php?view=components&do=config&link=content">редактировать</p>
-            <!--
-            <table width="" border="0" cellpadding="5" cellspacing="0" class="proptable" style="border:none">
-                <tr>
-                    <td>
-                        <strong>Режим работы: </strong><br/>
-                        <span class="hinttext"></span>
-                    </td>
-                    <td valign="top">
-                        параметры
-                    </td>
-                </tr>
-            </table>
-            -->
         </div>
-        
     </div>
 
     <p>
         <input name="opt" type="hidden" value="saveconfig" />
-        <input name="save" type="submit" id="save" value="Сохранить" />
-        <input name="back" type="button" id="back" value="Отмена" onclick="window.location.href='?view=components&do=config&id=<?php echo $component_id?>';"/>
+        <input name="save" type="submit" id="save" value="<?php echo $_LANG['SAVE'];?>" />
+        <input name="back" type="button" id="back" value="<?php echo $_LANG['CANCEL'];?>" onclick="window.location.href='?view=components&do=config&id=<?php echo $component_id?>';"/>
     </p>
 
 </form>
-<script type="text/javascript">$('#config_tabs > ul#tabs').tabs();</script>
-
-
         <?php
         
     }
@@ -173,7 +147,7 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
 
     if ($opt == 'show'){
         if (!isset($_REQUEST['item'])){
-            $item_id = $inCore->request('item_id', 'int', 0);
+            $item_id = cmsCore::request('item_id', 'int', 0);
             if ($item_id >= 0){ dbShow('cms_pending_content', $item_id);  }
             echo '1'; exit;
         } else {
@@ -184,7 +158,7 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
 
     if ($opt == 'hide'){
         if (!isset($_REQUEST['item'])){
-            $item_id = $inCore->request('item_id', 'int', 0);
+            $item_id = cmsCore::request('item_id', 'int', 0);
             if ($item_id >= 0){ dbHide('cms_pending_content', $item_id);  }
             echo '1'; exit;
         } else {
@@ -195,7 +169,7 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
 
     if ($opt == 'delete'){
         if (!isset($_REQUEST['item'])){
-            $item_id = $inCore->request('item_id', 'int', 0);
+            $item_id = cmsCore::request('item_id', 'int', 0);
             if ($item_id >= 0){
                 $model->deleteArticle($item_id);
                 cmsCore::addSessionMessage('Отложенная статья успешно удалена', 'success');
@@ -231,18 +205,20 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
                 $article['comments']    = cmsCore::request('comments', 'int', 0);
                 $article['canrate']     = cmsCore::request('canrate', 'int', 0);
 
-                $article['enddate']     = cmsCore::request('enddate', 'str', '');
+                $enddate                = explode('.', cmsCore::request('enddate', 'str'));
+                $article['enddate']     = $enddate[2] . '-' . $enddate[1] . '-' . $enddate[0];
+                
                 $article['is_end']      = cmsCore::request('is_end', 'int', 0);
                 $article['pagetitle']   = cmsCore::request('pagetitle', 'str', '');
 
                 $article['tags']        = cmsCore::request('tags', 'str');
 
-                $olddate                = cmsCore::request('olddate', 'str', '');
-                $pubdate                = cmsCore::request('pubdate', 'str', '');
-
                 $article['user_id']     = cmsCore::request('user_id', 'int', $inUser->id);
 
                 $article['tpl'] 	= cmsCore::request('tpl', 'str', 'com_content_read.tpl');
+                
+                $olddate                = cmsCore::request('olddate', 'str', '');
+                $pubdate                = cmsCore::request('pubdate', 'str', '');
 
                 $date = explode('.', $pubdate);
                 $article['pubdate'] = $date[2] . '-' . $date[1] . '-' . $date[0] . ' ' .date('H:i');
@@ -331,7 +307,9 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
         $article['comments']    = cmsCore::request('comments', 'int', 0);
         $article['canrate']     = cmsCore::request('canrate', 'int', 0);
 
-        $article['enddate']     = $_REQUEST['enddate'];
+        $enddate                = explode('.', cmsCore::request('enddate', 'str'));
+        $article['enddate']     = $enddate[2] . '-' . $enddate[1] . '-' . $enddate[0];
+        
         $article['is_end']      = cmsCore::request('is_end', 'int', 0);
         $article['pagetitle']   = cmsCore::request('pagetitle', 'str', '');
 
@@ -409,6 +387,7 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
             $mod['category_id'] = (int)$_REQUEST['to'];
             $mod['showpath'] = 1;
             $mod['tpl'] = 'com_content_read.tpl';
+            
         } else {
             if (isset($_REQUEST['item'])){
                 $_SESSION['editlist'] = $_REQUEST['item'];
@@ -419,84 +398,76 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
             if (isset($_SESSION['editlist'])){
                 $item_id = array_shift($_SESSION['editlist']);
                 if (sizeof($_SESSION['editlist'])==0) { unset($_SESSION['editlist']); } else
-                { $ostatok = '(На очереди: '.sizeof($_SESSION['editlist']).')'; }
-            } else { $item_id = (int)$_REQUEST['item_id']; }
-            
-                
+                { $ostatok = '('.$_LANG['AD_NEXT_IN'].sizeof($_SESSION['editlist']).')'; }
+            } else {
+                $item_id = (int)$_REQUEST['item_id'];
+            }
 
-                $sql = "SELECT *, (TO_DAYS(enddate) - TO_DAYS(CURDATE())) as daysleft, DATE_FORMAT(pubdate, '%d.%m.%Y') as pubdate
-                        FROM cms_pending_content
-                        WHERE id = $item_id LIMIT 1";
-                $result = $inDB->query($sql) ;
-                if ($inDB->num_rows($result)){
-                       $mod = $inDB->fetch_assoc($result);
-                       $ord = cmsCore::yamlToArray($mod['access']);
-                }
+            $sql = "SELECT *, (TO_DAYS(enddate) - TO_DAYS(CURDATE())) as daysleft, 
+                DATE_FORMAT(pubdate, '%d.%m.%Y') as pubdate, 
+                DATE_FORMAT(enddate, '%d.%m.%Y') as enddate 
+                FROM cms_pending_content 
+                WHERE id = $item_id LIMIT 1";
+                
+            $result = $inDB->query($sql) ;
+            if ($inDB->num_rows($result)){
+                $mod = $inDB->fetch_assoc($result);
+                $ord = cmsCore::yamlToArray($mod['access']);
+            }
                 
             echo '<h3>Редактировать отложенную статью '.$ostatok.'</h3>';
             cpAddPathway($mod['title'], 'index.php?view=components&do=config&id='.$component_id.'&opt=edit&item_id='.$mod['id']);
         }
 	?>
-    <form id="addform" name="addform" method="post" action="index.php?view=components&do=config&id=<?php echo $component_id; ?>" enctype="multipart/form-data">
+
+<form id="addform" name="addform" method="post" action="index.php?view=components&do=config&id=<?php echo $component_id; ?>" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="<?php echo cmsUser::getCsrfToken(); ?>" />
-        <table class="proptable" width="100%" cellpadding="15" cellspacing="2">
+        <table class="proptable" width="100%" cellpadding="5" cellspacing="2">
             <tr>
                 <!-- главная ячейка -->
                 <td valign="top">
                     <table width="100%" cellpadding="0" cellspacing="4" border="0">
                         <tr>
                             <td valign="top">
-                                <div><strong>Название статьи</strong></div>
+                                <div><strong><?php echo $_LANG['AD_ARTICLE_NAME']; ?></strong></div>
                                 <div>
                                     <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                         <tr>
                                             <td><input name="title" type="text" id="title" style="width:100%" value="<?php echo htmlspecialchars($mod['title']);?>" /></td>
                                             <td style="width:15px;padding-left:10px;padding-right:10px;">
-                                                <input type="checkbox" title="Показывать заголовок" name="showtitle" <?php if ($mod['showtitle'] || $opt=='add') { echo 'checked="checked"'; } ?> value="1">
+                                                <input type="checkbox" title="<?php echo $_LANG['AD_VIEW_TITLE']; ?>" name="showtitle" <?php if ($mod['showtitle'] || $opt=='add') { echo 'checked="checked"'; } ?> value="1">
                                             </td>
                                         </tr>
                                     </table>
                                 </div>
                             </td>
                             <td width="130" valign="top">
-                                <div><strong>Дата публикации</strong></div>
+                                <div><strong><?php echo $_LANG['AD_PUBLIC_DATE']; ?></strong></div>
                                 <div>
-                                    <input name="pubdate" type="text" id="pubdate" style="width:100px" <?php if(@!$mod['pubdate']) { echo 'value="'.date('Y-m-d').'"'; } else { echo 'value="'.$mod['pubdate'].'"'; } ?>/>
-                                    <?php
-                                        //include javascript
-                                        $GLOBALS['cp_page_head'][] = '<script language="JavaScript" type="text/javascript" src="/includes/jquery/jquery.js"></script>';
-                                        $GLOBALS['cp_page_head'][] = '<script language="JavaScript" type="text/javascript" src="/includes/jquery/datepicker/date_ru_win1251.js"></script>';
-                                        $GLOBALS['cp_page_head'][] = '<script language="JavaScript" type="text/javascript" src="/includes/jquery/datepicker/datepicker.js"></script>';
-                                        $GLOBALS['cp_page_head'][] = '<link href="/includes/jquery/datepicker/datepicker.css" rel="stylesheet" type="text/css" />';
-                                        if (@!$mod['pubdate']){
-                                            $GLOBALS['cp_page_head'][] = '<script type="text/javascript">$(document).ready(function(){$(\'#pubdate\').datePicker({startDate:\'01/01/1996\'}).val(new Date().asString()).trigger(\'change\');});</script>';
-                                        } else {
-                                            $GLOBALS['cp_page_head'][] = '<script type="text/javascript">$(document).ready(function(){$(\'#pubdate\').datePicker({startDate:\'01/01/1996\'}).val(\''.$mod['pubdate'].'\').trigger(\'change\');});</script>';
-                                        }
-                                    ?>
+                                    <input name="pubdate" type="text" id="pubdate" style="width:100px" <?php if(@!$mod['pubdate']) { echo 'value="'.date('d.m.Y').'"'; } else { echo 'value="'.$mod['pubdate'].'"'; } ?>/>
                                     <input type="hidden" name="olddate" value="<?php echo @$mod['pubdate']?>" />
                                 </div>
                             </td>
                             <td width="16" valign="bottom" style="padding-bottom:10px">
-                                <input type="checkbox" name="showdate" id="showdate" title="Показывать дату и автора" value="1" <?php if ($mod['showdate'] || $opt=='add') { echo 'checked="checked"'; } ?>/>
+                                <input type="checkbox" name="showdate" id="showdate" title="<?php echo $_LANG['AD_VIEW_DATE_AND_AUTHOR']; ?>" value="1" <?php if ($mod['showdate'] || $opt=='add') { echo 'checked="checked"'; } ?>/>
                             </td>
                             <td width="160" valign="top">
-                                <div><strong>Шаблон статьи</strong></div>
+                                <div><strong><?php echo $_LANG['AD_ARTICLE_TEMPLATE']; ?></strong></div>
                                 <div><input name="tpl" type="text" style="width:160px" value="<?php echo @$mod['tpl'];?>"></div>
                             </td>
 
                         </tr>
                     </table>
 
-                    <div><strong>Анонс статьи (не обязательно)</strong></div>
+                    <div><strong><?php echo $_LANG['AD_ARTICLE_NOTICE']; ?></strong></div>
                     <div><?php $inCore->insertEditor('description', $mod['description'], '200', '100%'); ?></div>
 
-                    <div><strong>Полный текст статьи</strong></div>
+                    <div><strong><?php echo $_LANG['AD_ARTICLE_TEXT']; ?></strong></div>
                     <?php insertPanel(); ?>
                     <div><?php $inCore->insertEditor('content', $mod['content'], '400', '100%'); ?></div>
 
-                    <div><strong>Теги статьи</strong></div>
-                    <div><input name="tags" type="text" id="tags" style="width:99%" value="<?php echo $mod['tags']; ?>" /></div>
+                    <div><strong><?php echo $_LANG['AD_ARTICLE_TAGS']; ?></strong></div>
+                    <div><input name="tags" type="text" id="tags" style="width:99%" value="<?php if (isset($mod['id'])) { echo $mod['tags']; } ?>" /></div>
 
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" class="checklist">
                         <tr>
@@ -504,7 +475,7 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
                                 <input type="radio" name="autokeys" id="autokeys1" <?php if ($opt=='add' && $cfg['autokeys']){ ?>checked="checked"<?php } ?> value="1"/>
                             </td>
                             <td>
-                                <label for="autokeys1"><strong>Автоматически сгенерировать ключевые слова и описание</strong></label>
+                                <label for="autokeys1"><strong><?php echo $_LANG['AD_AUTO_GEN_KEY']; ?></strong></label>
                             </td>
                         </tr>
                         <tr>
@@ -512,7 +483,7 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
                                 <input type="radio" name="autokeys" id="autokeys2" value="2"/>
                             </td>
                             <td>
-                                <label for="autokeys2"><strong>Использовать теги и анонс как ключевые слова и описание</strong></label>
+                                <label for="autokeys2"><strong><?php echo $_LANG['AD_TAGS_AS_KEY']; ?></strong></label>
                             </td>
                         </tr>
                         <tr>
@@ -520,9 +491,16 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
                                 <input type="radio" name="autokeys" id="autokeys3" value="3" <?php if ($opt=='edit' || !$cfg['autokeys']){ ?>checked="checked"<?php } ?>/>
                             </td>
                             <td>
-                                <label for="autokeys3"><strong>Заполнить ключевые слова и описание вручную</strong></label>
+                                <label for="autokeys3"><strong><?php echo $_LANG['AD_MANUAL_KEY'] ; ?></strong></label>
                             </td>
                         </tr>
+
+                        <?php if ($cfg['af_on'] && $opt=='add') { ?>
+                        <tr>
+                            <td width="20"><input type="checkbox" name="noforum" id="noforum" value="1" /> </td>
+                            <td><label for="noforum"><strong><?php echo $_LANG['AD_NO_CREATE_THEME']; ?></strong></label></td>
+                        </tr>
+                        <?php } ?>
                     </table>
 
                 </td>
@@ -532,18 +510,18 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
 
                     <?php ob_start(); ?>
 
-                    {tab=Публикация}
+                    {tab=<?php echo $_LANG['AD_TAB_PUBLISH']; ?>}
 
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" class="checklist">
                         <tr>
                             <td width="20"><input type="checkbox" name="published" id="published" value="1" <?php if ($mod['published'] || $do=='add') { echo 'checked="checked"'; } ?>/></td>
-                            <td><label for="published"><strong>Публиковать статью</strong></label></td>
+                            <td><label for="published"><strong><?php echo $_LANG['AD_PUBLIC_ARTICLE']; ?></strong></label></td>
                         </tr>
                     </table>
 
                     <div style="margin-top:7px">
                         <select name="category_id" size="10" id="category_id" style="width:99%;height:200px">
-                            <option value="1" <?php if (@$mod['category_id']==1 || !isset($mod['category_id'])) { echo 'selected="selected"'; }?>>-- Корневой раздел --</option>
+                            <option value="1" <?php if (@$mod['category_id']==1 || !isset($mod['category_id'])) { echo 'selected="selected"'; }?>><?php echo $_LANG['AD_ROOT_CATEGORY'] ; ?></option>
                             <?php
                                 if (isset($mod['category_id'])){
                                     echo $inCore->getListItemsNS('cms_category', $mod['category_id']);
@@ -556,14 +534,14 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
 
                     <div style="margin-bottom:10px">
                         <select name="showpath" id="showpath" style="width:99%">
-                            <option value="0" <?php if (@!$mod['showpath']) { echo 'selected="selected"'; } ?>>Глубиномер: Только название</option>
-                            <option value="1" <?php if (@$mod['showpath']) { echo 'selected="selected"'; } ?>>Глубиномер: Полный путь</option>
+                            <option value="0" <?php if (@!$mod['showpath']) { echo 'selected="selected"'; } ?>><?php echo $_LANG['AD_PATHWAY_NAME_ONLY']; ?></option>
+                            <option value="1" <?php if (@$mod['showpath']) { echo 'selected="selected"'; } ?>><?php echo $_LANG['AD_PATHWAY_FULL']; ?></option>
                         </select>
                     </div>
 
                     <div style="margin-top:15px">
-                        <strong>URL страницы</strong><br/>
-                        <div style="color:gray">Если не указан, генерируется из заголовка</div>
+                        <strong><?php echo $_LANG['AD_ARTICLE_URL']; ?></strong><br/>
+                        <div style="color:gray"><?php echo $_LANG['AD_IF_UNKNOWN']; ?></div>
                     </div>
                     <div>
                         <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -575,7 +553,7 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
                     </div>
 
                     <div style="margin-top:10px">
-                        <strong>Автор статьи</strong>
+                        <strong><?php echo $_LANG['AD_ARTICLE_AUTHOR']; ?></strong>
                     </div>
                     <div>
                         <select name="user_id" id="user_id" style="width:99%">
@@ -589,7 +567,7 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
                         </select>
                     </div>
 
-                    <div style="margin-top:12px"><strong>Фотография</strong></div>
+                    <div style="margin-top:12px"><strong><?php echo $_LANG['AD_PHOTO']; ?></strong></div>
                     <div style="margin-bottom:10px">
                         <?php
                             if ($opt=='edit'){
@@ -601,7 +579,7 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
                         <table cellpadding="0" cellspacing="0" border="0">
                             <tr>
                                 <td width="16"><input type="checkbox" id="delete_image" name="delete_image" value="1" /></td>
-                                <td><label for="delete_image">Удалить фотографию</label></td>
+                                <td><label for="delete_image"><?php echo $_LANG['AD_PHOTO_REMOVE']; ?></label></td>
                             </tr>
                         </table>
                         <?php
@@ -611,28 +589,28 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
                         <input type="file" name="picture" style="width:100%" />
                     </div>
 
-                    <div style="margin-top:25px"><strong>Параметры публикации</strong></div>
+                    <div style="margin-top:25px"><strong><?php echo $_LANG['AD_PUBLIC_PARAMETRS']; ?></strong></div>
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" class="checklist">
                         <tr>
                             <td width="20"><input type="checkbox" name="showlatest" id="showlatest" value="1" <?php if ($mod['showlatest'] || $do=='add') { echo 'checked="checked"'; } ?>/></td>
-                            <td><label for="showlatest">Показывать в "новых статьях"</label></td>
+                            <td><label for="showlatest"><?php echo $_LANG['AD_VIEW_NEW_ARTICLES']; ?></label></td>
                         </tr>
                         <tr>
                             <td width="20"><input type="checkbox" name="comments" id="comments" value="1" <?php if ($mod['comments'] || $do=='add') { echo 'checked="checked"'; } ?>/></td>
-                            <td><label for="comments">Разрешить комментарии</label></td>
+                            <td><label for="comments"><?php echo $_LANG['AD_ENABLE_COMMENTS']; ?></label></td>
                         </tr>
                         <tr>
                             <td width="20"><input type="checkbox" name="canrate" id="canrate" value="1" <?php if ($mod['canrate']) { echo 'checked="checked"'; } ?>/></td>
-                            <td><label for="canrate">Разрешить рейтинг</label></td>
+                            <td><label for="canrate"><?php echo $_LANG['AD_ENABLE_RATING']; ?></label></td>
                         </tr>
                     </table>
 
                     <div style="margin-top:25px">
-                        <strong>Создать ссылку в меню</strong>
+                        <strong><?php echo $_LANG['AD_CREATE_LINK']; ?></strong>
                     </div>
                     <div>
                         <select name="createmenu" id="createmenu" style="width:99%">
-                            <option value="0" <?php if ($opt=='add'){ echo 'selected="selected"'; } ?>>-- не создавать --</option>
+                            <option value="0" <?php if ($opt=='add'){ echo 'selected="selected"'; } ?>><?php echo $_LANG['AD_DONT_CREATE_LINK']; ?></option>
                             <option value="mainmenu" <?php if ($opt!='add' && $mod['createmenu']=='mainmenu'){ echo 'selected="selected"'; } ?>>Главное меню</option>
                             <?php for($m=1;$m<=15;$m++){ ?>
                                 <option value="menu<?php echo $m; ?>" <?php if ($opt!='add' && $mod['createmenu']=='menu'.$m){ echo 'selected="selected"'; } ?>>Дополнительное меню <?php echo $m; ?></option>
@@ -640,59 +618,60 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
                         </select>
                     </div>
 
-                    {tab=Сроки}
+                    {tab=<?php echo $_LANG['AD_DATE']; ?>}
 
                     <div style="margin-top:5px">
-                        <strong>Срок показа статьи</strong>
+                        <strong><?php echo $_LANG['AD_ARTICLE_TIME']; ?></strong>
                     </div>
                     <div>
-                        <select name="is_end" id="is_end" style="width:99%">
-                            <option value="0" <?php if (@!$mod['is_end']) { echo 'selected="selected"'; } ?>>Не ограничен</option>
-                            <option value="1" <?php if (@$mod['is_end']) { echo 'selected="selected"'; } ?>>По дату окончания</option>
+                        <select name="is_end" id="is_end" style="width:99%" onchange="if($(this).val() == 1){ $('#final_time').show(); }else {$('#final_time').hide();}">
+                            <option value="0" <?php if (@!$mod['is_end']) { echo 'selected="selected"'; } ?>><?php echo $_LANG['AD_UNLIMITED']; ?></option>
+                            <option value="1" <?php if (@$mod['is_end']) { echo 'selected="selected"'; } ?>><?php echo $_LANG['AD_TO_FINAL_TIME']; ?></option>
                         </select>
                     </div>
 
-                    <div style="margin-top:20px">
-                        <strong>Дата окончания:</strong><br/>
-                        <span class="hinttext">В формате ГГГГ-ММ-ДД</span>
+                    <div id="final_time" <?php if (@!$mod['is_end']) { echo 'style="display: none"'; } ?>>
+                        <div style="margin-top:20px">
+                            <strong><?php echo $_LANG['AD_FINAL_TIME']; ?></strong><br/>
+                            <span class="hinttext"><?php echo $_LANG['AD_CALENDAR_FORMAT']; ?></span>
+                        </div>
+                        <div>
+                            <input name="enddate" type="text" style="width:80%" <?php if(@!$mod['is_end']) { echo 'value="'.date('d.m.Y').'"'; } else { echo 'value="'.$mod['enddate'].'"'; } ?>id="enddate" />
+                        </div>
                     </div>
-                    <div><input name="enddate" type="text" style="width:99%" <?php if(@!$mod['is_end']) { echo 'value="'.date('Y-m-d').'"'; } else { echo 'value="'.$mod['enddate'].'"'; } ?>id="enddate" /></div>
-
 
                     {tab=SEO}
 
                     <div style="margin-top:5px">
-                        <strong>Заголовок страницы</strong><br/>
-                        <span class="hinttext">Если не указан, будет совпадать с названием</span>
+                        <strong><?php echo $_LANG['AD_PAGE_TITLE']; ?></strong><br/>
+                        <span class="hinttext"><?php echo $_LANG['AD_IF_UNKNOWN_PAGETITLE']; ?></span>
                     </div>
                     <div>
                         <input name="pagetitle" type="text" id="pagetitle" style="width:99%" value="<?php if (isset($mod['pagetitle'])) { echo htmlspecialchars($mod['pagetitle']); } ?>" />
                     </div>
 
                     <div style="margin-top:20px">
-                        <strong>Ключевые слова</strong><br/>
-                        <span class="hinttext">Через запятую, 10-15 слов</span>
+                        <strong><?php echo $_LANG['KEYWORDS']; ?></strong><br/>
+                        <span class="hinttext"><?php echo $_LANG['AD_FROM_COMMA']; ?></span>
                     </div>
                     <div>
-                         <textarea name="meta_keys" style="width:97%" rows="2" id="meta_keys"><?php echo htmlspecialchars($mod['meta_keys']);?></textarea>
+                         <textarea name="meta_keys" style="width:97%" rows="4" id="meta_keys"><?php echo htmlspecialchars($mod['meta_keys']);?></textarea>
                     </div>
 
                     <div style="margin-top:20px">
-                        <strong>Описание</strong><br/>
-                        <span class="hinttext">Не более 250 символов</span>
+                        <strong><?php echo $_LANG['DESCRIPTION']; ?></strong><br/>
+                        <span class="hinttext"><?php echo $_LANG['AD_LESS_THAN']; ?></span>
                     </div>
                     <div>
-                         <textarea name="meta_desc" style="width:97%" rows="4" id="meta_desc"><?php echo htmlspecialchars($mod['meta_desc']);?></textarea>
+                         <textarea name="meta_desc" style="width:97%" rows="6" id="meta_desc"><?php echo htmlspecialchars($mod['meta_desc']);?></textarea>
                     </div>
 
-                    {tab=Доступ}
+                    {tab=<?php echo $_LANG['AD_TAB_ACCESS']; ?>}
 
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" class="checklist" style="margin-top:5px">
                         <tr>
                             <td width="20">
                                 <?php
-                                    $sql    = "SELECT * FROM cms_user_groups";
-                                    $result = $inDB->query($sql) ;
 
                                     $style  = 'disabled="disabled"';
                                     $public = 'checked="checked"';
@@ -706,20 +685,20 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
                                 ?>
                                 <input name="is_public" type="checkbox" id="is_public" onclick="checkGroupList();" value="1" <?php echo $public; ?> />
                             </td>
-                            <td><label for="is_public"><strong>Общий доступ</strong></label></td>
+                            <td><label for="is_public"><strong><?php echo $_LANG['AD_SHARE']; ?></strong></label></td>
                         </tr>
                     </table>
                     <div style="padding:5px">
                         <span class="hinttext">
-                            Если отмечено, материал виден всем посетителям. Снимите галочку, чтобы вручную выбрать разрешенные группы пользователей.
+                            <?php echo $_LANG['AD_IF_NOTED']; ?>
                         </span>
                     </div>
 
                     <div style="margin-top:10px;padding:5px;padding-right:0px;" id="grp">
                         <div>
-                            <strong>Показывать группам:</strong><br />
+                            <strong><?php echo $_LANG['AD_GROUPS_VIEW']; ?></strong><br />
                             <span class="hinttext">
-                                Можно выбрать несколько, удерживая CTRL.
+                                <?php echo $_LANG['AD_SELECT_MULTIPLE_CTRL']; ?>
                             </span>
                         </div>
                         <div>
@@ -758,8 +737,8 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
         </table>
 
         <p>
-            <input name="add_mod" type="submit" id="add_mod" <?php if ($opt=='add') { echo 'value="Создать материал"'; } else { echo 'value="Сохранить материал"'; } ?> />
-            <input name="back" type="button" id="back" value="Отмена" onclick="window.history.back();"/>
+            <input name="add_mod" type="submit" id="add_mod" <?php if ($opt=='add') { echo 'value="'.$_LANG['AD_CREATE_CONTENT'].'"'; } else { echo 'value="'.$_LANG['AD_SAVE_CONTENT'].'"'; } ?> />
+            <input name="back" type="button" id="back" value="<?php echo $_LANG['CANCEL']; ?>" onclick="window.history.back();"/>
             <input name="opt" type="hidden" id="opt" <?php if ($opt=='add') { echo 'value="submit"'; } else { echo 'value="update"'; } ?> />
             <?php
                 if ($opt=='edit'){
@@ -776,19 +755,19 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
 
     if ($opt == 'list_items'){
         
-        $only_hidden    = $inCore->request('only_hidden', 'int', 0);
-        $category_id    = $inCore->request('cat_id', 'int', 0);
+        $only_hidden    = cmsCore::request('only_hidden', 'int', 0);
+        $category_id    = cmsCore::request('cat_id', 'int', 0);
         $base_uri       = 'index.php?view=components&do=config&id='.$component_id.'&opt=list_items';
 
-        $title_part     = $inCore->request('title', 'str', '');
+        $title_part     = cmsCore::request('title', 'str', '');
 
         $def_order  = $category_id ? 'con.id' : 'pubdate';
-        $orderby    = $inCore->request('orderby', 'str', $def_order);
-        $orderto    = $inCore->request('orderto', 'str', 'asc');
-        $page       = $inCore->request('page', 'int', 1);
+        $orderby    = cmsCore::request('orderby', 'str', $def_order);
+        $orderto    = cmsCore::request('orderto', 'str', 'asc');
+        $page       = cmsCore::request('page', 'int', 1);
         $perpage    = 20;
 
-        $hide_cats  = $inCore->request('hide_cats', 'int', 0);
+        $hide_cats  = cmsCore::request('hide_cats', 'int', 0);
 
         $cats       = $model->getCatsTree();
 
@@ -805,19 +784,15 @@ if(!defined('VALID_CMS_ADMIN')) { die('ACCESS DENIED'); }
         }
 
         $inDB->orderBy($orderby, $orderto);
-
         $inDB->limitPage($page, $perpage);
 
         $total      = $model->getArticlesCount(false);
-
         $items      = $model->getArticlesList(false);
         
         $pages      = ceil($total / $perpage);
         
         include($_SERVER['DOCUMENT_ROOT'].'/admin/components/pending_content/items.tpl.php');
 
-        
     }
 
-    
 ?>

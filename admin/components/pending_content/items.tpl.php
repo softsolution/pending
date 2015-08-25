@@ -6,32 +6,26 @@
 
             <div class="cat_add_link">
                 <div>
-                    <a href="?view=cats&do=add" style="color:#09C">Добавить раздел</a>
+                    <a href="?view=cats&do=add" style="color:#09C"><?php echo $_LANG['AD_CREATE_SECTION']; ?></a>
                 </div>
             </div>
             <div class="cat_link">
                 <div>
                 <?php if (!$only_hidden) { ?>
-                    <a href="<?php echo $base_uri.'&orderby=pubdate&orderto=desc&only_hidden=1'; ?>" style="font-weight:bold">На модерации</a>
-                <?php } else { $current_cat = 'На модерации'; ?>
-                    На модерации
-                <?php } ?>
+                    <a href="<?php echo $base_uri.'&orderby=pubdate&orderto=desc&only_hidden=1'; ?>" style="font-weight:bold"><?php echo $_LANG['ON_MODERATE']; ?></a>
+                <?php } else { $current_cat = $_LANG['ON_MODERATE']; echo $current_cat; } ?>
                 </div>
                 <div>
                 <?php if ($category_id || $only_hidden) { ?>
-                    <a href="<?php echo $base_uri; ?>" style="font-weight:bold">Все страницы</a>
-                <?php } else { $current_cat = 'Все страницы'; ?>
-                    Все страницы
-                <?php } ?>
+                    <a href="<?php echo $base_uri; ?>" style="font-weight:bold"><?php echo $_LANG['AD_PAGE_ALL']; ?></a>
+                <?php } else { $current_cat = $_LANG['AD_PAGE_ALL']; echo $current_cat; } ?>
                 </div>
             </div>
             <div class="cat_link">
                 <div>
                 <?php if ($category_id != 1) { ?>
-                    <a href="<?php echo $base_uri.'&cat_id=1'; ?>" style="font-weight:bold">Корневой раздел</a>
-                <?php } else { $current_cat = 'Корневой раздел'; ?>
-                    Корневой раздел
-                <?php } ?>
+                    <a href="<?php echo $base_uri.'&cat_id=1'; ?>" style="font-weight:bold"><?php echo $_LANG['AD_ROOT_CATEGORY']; ?></a>
+                <?php } else { $current_cat = $_LANG['AD_ROOT_CATEGORY']; echo $current_cat; } ?>
                 </div>
             </div>
             <?php if (is_array($cats)){ ?>
@@ -69,12 +63,12 @@
                                 <?php echo $current_cat; ?> <?php if($category_id){ ?>[id=<?php echo $category_id; ?>]<?php } ?>
                             </span>
                             <span style="padding-left: 15px;">
-                                <a title="Добавить статью" href="?view=components&do=config&id=<?php echo $component_id; ?>&opt=add<?php if($category_id){ ?>&to=<?php echo $category_id; } ?>">
-                                    <img border="0" hspace="2" alt="Добавить статью" src="images/actions/add.gif"/>
+                                <a class="uittip" title="<?php echo $_LANG['ADD_ARTICLE']; ?>" href="?view=components&do=config&id=<?php echo $component_id; ?>&opt=add<?php if($category_id){ ?>&to=<?php echo $category_id; } ?>">
+                                    <img border="0" hspace="2" alt=""<?php echo $_LANG['AD_ADD_ARTICLE']; ?>" src="images/actions/add.gif"/>
                                 </a>
                                 <?php if($category_id>1){ ?>
-                                    <a title="Редактировать раздел" href="?view=cats&do=edit&id=<?php echo $category_id; ?>">
-                                        <img border="0" hspace="2" alt="Редактировать раздел" src="images/actions/edit.gif"/>
+                                    <a class="uittip" title="<?php echo $_LANG['AD_EDIT_SECTION']; ?>" href="?view=cats&do=edit&id=<?php echo $category_id; ?>">
+                                        <img border="0" hspace="2" alt="<?php echo $_LANG['AD_EDIT_SECTION']; ?>" src="images/actions/edit.gif"/>
                                     </a>
                                 <?php } ?>
                             </span>
@@ -85,17 +79,17 @@
                     <tr>
                         <td width="130">
                             <select name="orderby" style="width:130px" onchange="$('#filter_form').submit()">
-                                <option value="title" <?php if($orderby=='title'){ ?>selected="selected"<?php } ?>>по названию</option>
-                                <option value="pubdate" <?php if($orderby=='pubdate'){ ?>selected="selected"<?php } ?>>по дате</option>
+                                <option value="title" <?php if($orderby=='title'){ ?>selected="selected"<?php } ?>><?php echo $_LANG['AD_BY_TITLE']; ?></option>
+                                <option value="pubdate" <?php if($orderby=='pubdate'){ ?>selected="selected"<?php } ?>><?php echo $_LANG['AD_BY_CALENDAR']; ?></option>
                             </select>
                         </td>
                         <td width="150">
                             <select name="orderto" style="width:150px" onchange="$('#filter_form').submit()">
-                                <option value="asc" <?php if($orderto=='asc'){ ?>selected="selected"<?php } ?>>по возрастанию</option>
-                                <option value="desc" <?php if($orderto=='desc'){ ?>selected="selected"<?php } ?>>по убыванию</option>
+                                <option value="asc" <?php if($orderto=='asc'){ ?>selected="selected"<?php } ?>><?php echo $_LANG['AD_BY_INCREMENT']; ?></option>
+                                <option value="desc" <?php if($orderto=='desc'){ ?>selected="selected"<?php } ?>><?php echo $_LANG['AD_BY_DECREMENT']; ?></option>
                             </select>
                         </td>
-                        <td width="60">Название:</td>
+                        <td width="60"><?php echo $_LANG['TITLE']; ?>:</td>
                         <td width="">
                             <input type="text" name="title" value="<?php echo $title_part; ?>" style="width:99%"/>
                         </td>
@@ -111,13 +105,13 @@
                     <thead>
                         <tr>
                             <th class="lt_header" align="center" width="20">
-                                <a class="lt_header_link" title="Инвертировать выделение" href="javascript:" onclick="javascript:invert()">#</a>
+                                <a class="lt_header_link" title="<?php echo $_LANG['AD_INVERT_SELECTION']; ?>" href="javascript:" onclick="javascript:invert()">#</a>
                             </th>
                             <th class="lt_header" width="25">id</th>
-                            <th class="lt_header" width="" colspan="2">Название</th>
-                            <th class="lt_header" width="80" align="center">Дата публикации</th>
-                            <th class="lt_header" width="50">Показ</th>
-                            <th class="lt_header" align="center" width="90">Действия</th>
+                            <th class="lt_header" width="" colspan="2"><?php echo $_LANG['TITLE']; ?></th>
+                            <th class="lt_header" width="80" align="center"><?php echo $_LANG['DATE']; ?> публикации</th>
+                            <th class="lt_header" width="50"><?php echo $_LANG['AD_IS_PUBLISHED']; ?></th>
+                            <th class="lt_header" align="center" width="90"><?php echo $_LANG['AD_ACTIONS']; ?></th>
                         </tr>
                     </thead>
                     <?php if ($items){ ?>
@@ -127,7 +121,7 @@
                                     <td><input type="checkbox" name="item[]" value="<?php echo $item['id']; ?>" /></td>
                                     <td><?php echo $item['id']; ?></td>
                                     <td width="16">
-                                        <img src="/templates/_default_/images/icons/article.png" border="0"/>
+                                        <img src="/templates/<?php echo TEMPLATE; ?>/images/icons/article.png" border="0"/>
                                     </td>
                                     <td>
                                         <a href="index.php?view=components&do=config&id=<?php echo $component_id; ?>&opt=edit&item_id=<?php echo $item['id']; ?>">
@@ -137,22 +131,22 @@
                                     <td><?php echo $item['fpubdate']; ?></td>
                                     <td>
                                         <?php if ($item['published']) { ?>
-                                            <a id="publink<?php echo $item['id']; ?>" href="javascript:pub(<?php echo $item['id']; ?>, 'view=components&do=config&id=<?php echo $component_id; ?>&opt=hide&item_id=<?php echo $item['id']; ?>', 'view=components&do=config&id=<?php echo $component_id; ?>&opt=show&item_id=<?php echo $item['id']; ?>', 'off', 'on');" title="Скрыть">
+                                            <a class="uittip" id="publink<?php echo $item['id']; ?>" href="javascript:pub(<?php echo $item['id']; ?>, 'view=components&do=config&id=<?php echo $component_id; ?>&opt=hide&item_id=<?php echo $item['id']; ?>', 'view=components&do=config&id=<?php echo $component_id; ?>&opt=show&item_id=<?php echo $item['id']; ?>', 'off', 'on');" title="<?php echo $_LANG['HIDE']; ?>"">
                                                 <img id="pub<?php echo $item['id']; ?>" border="0" src="images/actions/on.gif"/>
                                             </a>
                                         <?php } else { ?>
-                                            <a id="publink<?php echo $item['id']; ?>" href="javascript:pub(<?php echo $item['id']; ?>, 'view=components&do=config&id=<?php echo $component_id; ?>&opt=show&item_id=<?php echo $item['id']; ?>', 'view=components&do=config&id=<?php echo $component_id; ?>&opt=hide&item_id=<?php echo $item['id']; ?>', 'on', 'off');" title="Показать">
+                                            <a class="uittip" id="publink<?php echo $item['id']; ?>" href="javascript:pub(<?php echo $item['id']; ?>, 'view=components&do=config&id=<?php echo $component_id; ?>&opt=show&item_id=<?php echo $item['id']; ?>', 'view=components&do=config&id=<?php echo $component_id; ?>&opt=hide&item_id=<?php echo $item['id']; ?>', 'on', 'off');" title="<?php echo $_LANG['SHOW']; ?>">
                                                 <img id="pub<?php echo $item['id']; ?>" border="0" src="images/actions/off.gif"/>
                                             </a>
                                         <?php } ?>
                                     </td>
                                     <td align="right">
                                         <div style="padding-right: 8px;">
-                                            <a title="Редактировать" href="?view=components&do=config&id=<?php echo $component_id; ?>&opt=edit&item_id=<?php echo $item['id']; ?>">
-                                                <img border="0" hspace="2" alt="Редактировать" src="images/actions/edit.gif"/>
+                                            <a class="uittip" title="<?php echo $_LANG['EDIT']; ?>" href="?view=components&do=config&id=<?php echo $component_id; ?>&opt=edit&item_id=<?php echo $item['id']; ?>">
+                                                <img border="0" hspace="2" alt="<?php echo $_LANG['EDIT']; ?>" src="images/actions/edit.gif"/>
                                             </a>
-                                            <a title="Удалить" onclick="jsmsg('Удалить <?php echo $item['title']; ?>?', '?view=components&do=config&id=<?php echo $component_id; ?>&opt=delete&item_id=<?php echo $item['id']; ?>')" href="#">
-                                                <img border="0" hspace="2" alt="Удалить" src="images/actions/delete.gif"/>
+                                            <a class="uittip" title="<?php echo $_LANG['DELETE']; ?>" onclick="jsmsg('<?php echo $_LANG['DELETE']; ?> <?php echo $item['title']; ?>?', '?view=components&do=config&id=<?php echo $component_id; ?>&opt=delete&item_id=<?php echo $item['id']; ?>')" href="#">
+                                                <img border="0" hspace="2" alt="<?php echo $_LANG['DELETE']; ?>" src="images/actions/delete.gif"/>
                                             </a>
                                         </div>
                                     </td>
@@ -161,7 +155,7 @@
                         </tbody>
                     <?php } else { ?>
                         <tbody>
-                            <td colspan="6" style="padding-left:5px"><div style="padding:15px;padding-left:0px">Статьи не найдены</div></td>
+                            <td colspan="6" style="padding-left:5px"><div style="padding:15px;padding-left:0px"><?php echo $_LANG['AD_DONT_FIND_ARTICLES']; ?></div></td>
                         </tbody>
                     <?php } ?>
                 </table>
@@ -171,33 +165,33 @@
                         <table class="" cellpadding="5" border="0" height="40">
                             <tr>
                                 <td width="">
-                                   <strong style="color:#09C">Отмеченные:</strong>
+                                   <strong style="color:#09C"><?php echo $_LANG['SELECTED_ITEMS']; ?>:</strong>
                                 </td>
                                 <td width="" class="sel_pub">
-                                    <input type="button" name="" value="Редактировать" onclick="sendContentForm(<?php echo $component_id; ?>, 'edit');" />
-                                    <input type="button" name="" value="Перенести" onclick="$('.sel_move').toggle();$('.sel_pub').toggle();" />
+                                    <input type="button" name="" value="<?php echo $_LANG['EDIT']; ?>" onclick="sendContentForm(<?php echo $component_id; ?>, 'edit');" />
+                                    <input type="button" name="" value="<?php echo $_LANG['AD_MOVE_TO']; ?>" onclick="$('.sel_move').toggle();$('.sel_pub').toggle();" />
                                 </td>
                                 <td class="sel_move" style="display:none">
-                                    Перенести в раздел
+                                    <?php echo $_LANG['AD_MOVE_TO_CATEGORY']; ?>
                                 </td>
                                 <td class="sel_move" style="display:none">
                                     <select id="move_cat_id" style="width:250px">
-                                        <option value="1">Корневой раздел</option>
+                                        <option value="1"><?php echo $_LANG['AD_ROOT_CATEGORY']; ?></option>
                                         <?php
                                            echo $inCore->getListItemsNS('cms_category', $category_id);
                                         ?>
                                     </select>
                                 </td>
                                 <td class="sel_move" style="display:none">
-                                    <input type="button" name="" value="ОК" onclick="sendContentForm(<?php echo $component_id; ?>, 'move_to_cat', $('select#move_cat_id').val(), <?php echo $category_id; ?>);" />
-                                    <input type="button" name="" value="Отмена" onclick="$('td.sel_move').toggle();$('td.sel_pub').toggle();" /> Внимание! URL переносимых статей изменится согласно категории.
+                                    <input type="button" name="" value="<?php echo $_LANG['AD_OKAY']; ?>" onclick="sendContentForm(<?php echo $component_id; ?>, 'move_to_cat', $('select#move_cat_id').val(), <?php echo $category_id; ?>);" />
+                                    <input type="button" name="" value="<?php echo $_LANG['CANCEL']; ?>" onclick="$('td.sel_move').toggle();$('td.sel_pub').toggle();" /> <?php echo $_LANG['AD_CHANGE_URL']; ?>
                                 </td>
                                 <td class="sel_pub">
-                                    <input type="button" name="" value="Показать" onclick="sendContentForm(<?php echo $component_id; ?>, 'show');" />
-                                    <input type="button" name="" value="Скрыть" onclick="sendContentForm(<?php echo $component_id; ?>, 'hide');" />
+                                    <input type="button" name="" value="<?php echo $_LANG['SHOW']; ?>" onclick="sendContentForm(<?php echo $component_id; ?>, 'show');" />
+                                    <input type="button" name="" value="<?php echo $_LANG['HIDE']; ?>" onclick="sendContentForm(<?php echo $component_id; ?>, 'hide');" />
                                 </td>
                                 <td class="sel_pub">
-                                    <input type="button" name="" value="Удалить" onclick="sendContentForm(<?php echo $component_id; ?>, 'delete');" />
+                                    <input type="button" name="" value="<?php echo $_LANG['DELETE']; ?>" onclick="sendContentForm(<?php echo $component_id; ?>, 'delete');" />
                                 </td>
                             </tr>
                         </table>
