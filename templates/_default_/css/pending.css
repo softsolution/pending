@@ -1,0 +1,26 @@
+.art_list {
+    border: 1px solid #ccc;
+    border-collapse: collapse;
+}
+.art_list thead {
+    background: #333;
+    color: #fff;
+}
+.redactor-left-col{
+    padding: 0 20px 0 0;
+    width: 230px;
+}
+.redactor-right-col {
+    padding: 0 0 0 10px;
+}
+
+.categories_box {
+    border: 1px solid #c3d6df;
+    border-radius: 4px;
+    padding: 15px;
+}
+
+.ui-widget {
+    border: 1px solid #d4d4d4;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
